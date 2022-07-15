@@ -23,6 +23,7 @@ public class CameraFollow : MonoBehaviour
 
 
     void Start() {
+        Debug.Log("Called Start for CameraFollow.cs" ,gameObject);
         focusArea = new FocusArea(target.collider.bounds, focusAreaSize);
     }
 

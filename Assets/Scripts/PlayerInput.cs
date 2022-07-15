@@ -10,6 +10,7 @@ public class PlayerInput : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log("Called Start for PlayerInput.cs" ,gameObject);
         player = GetComponent<Player>();
     }
 

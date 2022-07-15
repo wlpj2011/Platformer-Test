@@ -29,6 +29,7 @@ public class RaycastController : MonoBehaviour
     }
 
     public virtual void Start() {
+        Debug.Log("Called Start for RaycastController.cs" ,gameObject);
         CalculateRaySpacing();
     }
 

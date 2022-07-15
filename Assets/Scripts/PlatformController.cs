@@ -26,6 +26,7 @@ public class PlatformController : RaycastController
     public override void Start()
     {
         base.Start();
+        Debug.Log("Called Start for PlatformController.cs" ,gameObject);
         globalWaypoints = new Vector3[localWaypoints.Length];
         for( int i = 0; i < localWaypoints.Length; i++) {
             globalWaypoints[i] = localWaypoints[i] + transform.position;
@@ -83,6 +84,7 @@ public class PlatformController : RaycastController
             }
             if(passenger.moveBeforePlatform == beforeMovePlatform) {
                 //print(beforeMovePlatform?"Moving Before":"Moving After");
+                Debug.Log((beforeMovePlatform?"Moving Before ":"Moving After ") + ": standing on Platform is " + passenger.standingOnPlatform);
                 passengerDictionary[passenger.transform].Move(passenger.velocity, passenger.standingOnPlatform);
             }
         }

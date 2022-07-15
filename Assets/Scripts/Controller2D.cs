@@ -13,6 +13,7 @@ public class Controller2D : RaycastController
 
     public override void Start() {
         base.Start();
+        Debug.Log("Called Start for Controller2D.cs" ,gameObject);
         collisions.faceDir = 1;
     }
 

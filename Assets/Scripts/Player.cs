@@ -34,6 +34,7 @@ public class Player : MonoBehaviour
 
     // Start is called before the first frame update
     void Start() {
+        Debug.Log("Called Start for Player.cs" ,gameObject);
         controller = GetComponent<Controller2D>();
         //print("Jump Height: " + jumpHeight + " and Time to Jump: " + timeToJumpApex);
         gravity = -(2*maxJumpHeight)/Mathf.Pow(timeToJumpApex, 2);
@@ -68,14 +69,17 @@ public class Player : MonoBehaviour
             if(wallDirX==directionalInput.x) {
                 velocity.x = -wallDirX * wallJumpClimb.x;
                 velocity.y = wallJumpClimb.y;
+                Debug.Log("Performed Climbing Wall Jump",gameObject);
             }
             else if (directionalInput.x ==0 ) {
                 velocity.x = -wallDirX * wallJumpOff.x;
                 velocity.y = wallJumpOff.y;
+                Debug.Log("Performed Climbing Jump Off Wall",gameObject);
             }
             else {
                 velocity.x = -wallDirX * wallLeap.x;
                 velocity.y = wallLeap.y;
+                Debug.Log("Performed Climbing Wall Leap",gameObject);
             }
         }
         if(controller.collisions.below) {
@@ -109,6 +113,7 @@ public class Player : MonoBehaviour
         wallSliding = false;
 
         if((controller.collisions.left || controller.collisions.right) && !controller.collisions.below && velocity.y < 0){
+            Debug.Log("Sliding down wall", gameObject);
             wallSliding = true;
             if (velocity.y < -wallSlideSpeedMax) {
                 velocity.y = -wallSlideSpeedMax;
