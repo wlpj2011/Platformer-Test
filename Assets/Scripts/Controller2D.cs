@@ -56,27 +56,31 @@ public class Controller2D : RaycastController
     }
 
     void HorizontalCollisions(ref Vector2 moveAmount) {
-        float directionX = collisions.faceDir;
-        float rayLength = Mathf.Abs(moveAmount.x) + skinWidth;
+    /*
+    * Takes in a reference to the amount that the gameObject is planning to move and adjusts the moveAmount
+    * based on the projected collisions
+    */
+        float directionX = collisions.faceDir; // Sets the direction along the x-axis to be the direction the gameObject is facing
+        float rayLength = Mathf.Abs(moveAmount.x) + skinWidth; // Sets the length of the ray to be cast to be the distance planned to move + the distance from the ray origin to the gameObject surface
 
         if(Mathf.Abs(moveAmount.x) < skinWidth) {
-            rayLength = 2* skinWidth;
+            rayLength = 2* skinWidth; // Increases the ray length to 2*skinWidth if it is less that 2*skinWidth
         }
 
         for ( int i = 0; i < horizontalRayCount; i++){
-            Vector2 rayOrigin = (directionX == -1)?raycastOrigins.bottomLeft:raycastOrigins.bottomRight;
-            rayOrigin += Vector2.up * (horizontalRaySpacing * i);
-            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLength, collisionMask);
+            Vector2 rayOrigin = (directionX == -1)?raycastOrigins.bottomLeft:raycastOrigins.bottomRight; // Picks the bottom left to cast the first ray from if moving left and bottom right if moving right
+            rayOrigin += Vector2.up * (horizontalRaySpacing * i); // Shifts up the raycast origin to space out rays
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLength, collisionMask); // Cast ray of length rayLength and record if it hit anything in the collision mask
 
-            Debug.DrawRay(rayOrigin, Vector2.right * directionX * rayLength, Color.red);
+            Debug.DrawRay(rayOrigin, Vector2.right * directionX * rayLength, Color.red); // Draw rays if desired
 
             if (hit) {
 
                 if(hit.distance == 0) {
-                    continue;
+                    continue; // If gameObject is intersecting with the colliding object, make no adjustments to moveAmount
                 }
 
-                float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
+                float slopeAngle = Vector2.Angle(hit.normal, Vector2.up); // Calculate the slope angle of the object that will be collided with
 
                 if(i==0 && slopeAngle <= maxSlopeAngle) {
                     if(collisions.descendingSlope) {
