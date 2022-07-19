@@ -6,34 +6,45 @@ using UnityEngine;
 [RequireComponent (typeof(BoxCollider2D))]
 public class RaycastController : MonoBehaviour
 {
-    public LayerMask collisionMask;
+    public LayerMask collisionMask; //The set of layers that the current gameObject will collide with
 
-    public const float skinWidth = 0.015f;
-    const float distanceBetweenRays = 0.25f;
+    public const float skinWidth = 0.015f; //The offset into the game object from which the first and last ray are fired
+    const float distanceBetweenRays = 0.25f; //Upper bound on the distance between rays
     [HideInInspector]
-    public int horizontalRayCount;
+    public int horizontalRayCount; //Number of rays fired horizontally spaced along the vertical axis
     [HideInInspector]
-    public int verticalRayCount;
-
-    [HideInInspector]
-    public float horizontalRaySpacing;
-    [HideInInspector]
-    public float verticalRaySpacing;
+    public int verticalRayCount; //Number of rays fired vertically spaced along the horizontal axis
 
     [HideInInspector]
-    public BoxCollider2D collider;
-    public RaycastOrigins raycastOrigins;
+    public float horizontalRaySpacing; //Actual vertical distance between rays fired horizontally
+    [HideInInspector]
+    public float verticalRaySpacing; //Actual horizontal distance between rays fired vertically
 
-    public virtual void Awake() {
+    [HideInInspector]
+    public BoxCollider2D collider; //Collider for the current gameObject
+    public RaycastOrigins raycastOrigins; //Collection of useful locations to send raycasts from
+
+    public virtual void Awake() { 
+    /*
+    * Awake method called before Start method even if script is disabled
+    * Initializes the collider for the gameObject
+    */
         collider = GetComponent<BoxCollider2D>();
     }
 
     public virtual void Start() {
-        Debug.Log("Called Start for RaycastController.cs" ,gameObject);
+    /*
+    * Start method called once at beginning of gameObject's lifetime
+    * Calculates ray spacing for the gameObject
+    */
+        Debug.Log("Called Start for RaycastController.cs", gameObject);
         CalculateRaySpacing();
     }
 
     public void UpdateRaycastOrigins() {
+    /*
+    * Recalculates the locations to start sending raycasts from in each direction
+    */
         Bounds bounds = collider.bounds;
         bounds.Expand(skinWidth*-2);
         raycastOrigins.bottomLeft = new Vector2(bounds.min.x, bounds.min.y);
@@ -43,6 +54,9 @@ public class RaycastController : MonoBehaviour
     } 
 
     public void CalculateRaySpacing() {
+    /*
+    * Calculates for the first time the appropriate spacings between rays based on the desired distance between rays
+    */
         Bounds bounds = collider.bounds;
         bounds.Expand(skinWidth*-2);
 
@@ -57,6 +71,9 @@ public class RaycastController : MonoBehaviour
     }
 
     public struct RaycastOrigins {
+    /*
+    * Stores the ideal places to cast rays from for a box
+    */
         public Vector2 topLeft,topRight;
         public Vector2 bottomLeft, bottomRight;
     }

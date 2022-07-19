@@ -5,52 +5,56 @@ using UnityEngine;
 
 public class Controller2D : RaycastController
 {
-    public float maxSlopeAngle = 80;
+    public float maxSlopeAngle = 80; // Maximum angle at which a slope can be walked up. Any higher angle and the gameObject will just slide down
 
-    public CollisionInfo collisions;
+    public CollisionInfo collisions; // Stores all info about the collisions a gameObject is experiencing
     [HideInInspector]
-    public Vector2 playerInput;
+    public Vector2 playerInput; //Stores player input for the current frame
 
     public override void Start() {
-        base.Start();
+    /*
+    * Start method called once at beginning of gameObject's lifetime
+    */
+        base.Start(); // Calculates ray spacing for the gameObject
         Debug.Log("Called Start for Controller2D.cs" ,gameObject);
-        collisions.faceDir = 1;
+        collisions.faceDir = 1; //Sets facing direction to right
     }
 
     public void Move(Vector2 moveAmount, bool standingOnPlatform = false) {
-        Move(moveAmount, Vector2.zero, standingOnPlatform);
+        Move(moveAmount, Vector2.zero, standingOnPlatform); //Calls move with no input
     }
 
     public void Move(Vector2 moveAmount, Vector2 input, bool standingOnPlatform = false) {
+    /*
+    * Moves the gameObject by moveAmount after correcting for upcoming collisions
+    */
+        collisions.Reset(); //Resets to the standard no-collisions state
+        collisions.moveAmountOld = moveAmount; //Stores the distance moved previous frame
+        playerInput = input; //renames input
 
-        collisions.Reset();
-        collisions.moveAmountOld = moveAmount;
-        playerInput = input;
-
-        UpdateRaycastOrigins();
+        UpdateRaycastOrigins(); 
 
         if(moveAmount.y < 0 ) {
-            DescendSlope(ref moveAmount);
+            DescendSlope(ref moveAmount); // If moving downwards, checks if will contact a slope and the appropriate way to move down that slope
         }
 
         if(moveAmount.x != 0) {
-            collisions.faceDir = (int)Mathf.Sign(moveAmount.x);
+            collisions.faceDir = (int)Mathf.Sign(moveAmount.x); // If not standing still, sets the facing direction appropriately
         }
         
-        HorizontalCollisions(ref moveAmount);
+        HorizontalCollisions(ref moveAmount); // Checks for collisions in the horizontal direction and appropriately adjust the distance to move
 
         if(moveAmount.y != 0){
-            VerticalCollisions(ref moveAmount);
+            VerticalCollisions(ref moveAmount); // If moving vertically checks for collisions in the vertical direction and appropriately adjust the distance to move
         }        
 
-        transform.Translate(moveAmount);
+        transform.Translate(moveAmount); // Translate the gameObject by the adjusted moveAmount
 
         if(standingOnPlatform) {
-            collisions.below = true;
+            collisions.below = true; // If standing on a platform, mark that there is a collision below the gameObject
         }
     }
 
-    
     void HorizontalCollisions(ref Vector2 moveAmount) {
         float directionX = collisions.faceDir;
         float rayLength = Mathf.Abs(moveAmount.x) + skinWidth;
@@ -222,6 +226,14 @@ public class Controller2D : RaycastController
     }
 
     public struct CollisionInfo {
+    /*
+    * Structure storing info about the collisions the gameObject is experiencing. 
+    * This includes bools telling which sides have collisions
+    * How bools telling how the gameObject is interacting with slopes
+    * Information about the current and previous slope and movement
+    * Facing information
+    * Comes with a function to reset everything appropriately each frame
+    */
         public bool above, below;
         public bool left, right;
         
