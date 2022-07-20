@@ -58,7 +58,7 @@ public class Controller2D : RaycastController
     void HorizontalCollisions(ref Vector2 moveAmount) {
     /*
     * Takes in a reference to the amount that the gameObject is planning to move and adjusts the moveAmount
-    * based on the projected collisions
+    * based on the projected collisions along the horizontal axis
     */
         float directionX = collisions.faceDir; // Sets the direction along the x-axis to be the direction the gameObject is facing
         float rayLength = Mathf.Abs(moveAmount.x) + skinWidth; // Sets the length of the ray to be cast to be the distance planned to move + the distance from the ray origin to the gameObject surface
@@ -82,28 +82,28 @@ public class Controller2D : RaycastController
 
                 float slopeAngle = Vector2.Angle(hit.normal, Vector2.up); // Calculate the slope angle of the object that will be collided with
 
-                if(i==0 && slopeAngle <= maxSlopeAngle) {
-                    if(collisions.descendingSlope) {
+                if(i==0 && slopeAngle <= maxSlopeAngle) { // If on a climbable slope and the first ray to be cast
+                    if(collisions.descendingSlope) { // reset descending slope if it is wrong and store old movement
                         collisions.descendingSlope = false;
                         moveAmount = collisions.moveAmountOld;
                     }
                     float distanceToSlopeStart = 0;
-                    if(slopeAngle != collisions.slopeAngleOld){
+                    if(slopeAngle != collisions.slopeAngleOld){ // If changing slopes, only adjust the x movement after approaching the slope
                         distanceToSlopeStart = hit.distance - skinWidth;
                         moveAmount.x -=distanceToSlopeStart * directionX;
                     }
-                    ClimbSlope(ref moveAmount, slopeAngle, hit.normal);
-                    moveAmount.x += distanceToSlopeStart * directionX;
+                    ClimbSlope(ref moveAmount, slopeAngle, hit.normal); // Calculate how the slope affects the movement
+                    moveAmount.x += distanceToSlopeStart * directionX; // Add back in the distance away from the slope
                 }
-                if(!collisions.climbingSlope || slopeAngle > maxSlopeAngle){
-                    moveAmount.x = (hit.distance - skinWidth) * directionX;
-                    rayLength = hit.distance;
+                if(!collisions.climbingSlope || slopeAngle > maxSlopeAngle){ // If slope too steep to climb or just going along horizontal
+                    moveAmount.x = (hit.distance - skinWidth) * directionX; // Adjust move distance to account for the skin width
+                    rayLength = hit.distance; // Make sure the next rays will not check further out than the collision
 
-                    if(collisions.climbingSlope) {
+                    if(collisions.climbingSlope) { //Calculate the change in elevation on a slope
                         moveAmount.y = Mathf.Tan(collisions.slopeAngle * Mathf.Deg2Rad) * Mathf.Abs(moveAmount.x);
                     }
 
-                    collisions.left = directionX == -1;
+                    collisions.left = directionX == -1; // Set collisions direction
                     collisions.right = directionX == 1;
                 }
                 
@@ -112,15 +112,19 @@ public class Controller2D : RaycastController
     }
 
     void VerticalCollisions(ref Vector2 moveAmount) {
-        float directionY = Mathf.Sign(moveAmount.y);
-        float rayLength = Mathf.Abs(moveAmount.y) + skinWidth;
+    /*
+    * Takes in a reference to the amount that the gameObject is planning to move and adjusts the moveAmount
+    * based on the projected collisions along the vertical axis
+    */
+        float directionY = Mathf.Sign(moveAmount.y); //Sets the direction along the y-axis based on the projected movement passed in
+        float rayLength = Mathf.Abs(moveAmount.y) + skinWidth; // Increases ray length by skinWidth
 
         for ( int i = 0; i < verticalRayCount; i++){
-            Vector2 rayOrigin = (directionY == -1)?raycastOrigins.bottomLeft:raycastOrigins.topLeft;
-            rayOrigin += Vector2.right * (verticalRaySpacing * i + moveAmount.x);
-            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.up * directionY, rayLength, collisionMask);
+            Vector2 rayOrigin = (directionY == -1)?raycastOrigins.bottomLeft:raycastOrigins.topLeft; // Picks the bottom left to cast the first ray from if moving down and top left if moving up
+            rayOrigin += Vector2.right * (verticalRaySpacing * i + moveAmount.x); // Shifts over the raycast origin to space out rays
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.up * directionY, rayLength, collisionMask); // Cast ray of length rayLength and record if it hit anything in the collision mask
 
-            Debug.DrawRay(rayOrigin, Vector2.up * directionY * rayLength, Color.red);
+            Debug.DrawRay(rayOrigin, Vector2.up * directionY * rayLength, Color.red); // Draws rays if desired
 
             if (hit) {
 
@@ -217,7 +221,7 @@ public class Controller2D : RaycastController
         if(hit) {
             float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
             if(slopeAngle > maxSlopeAngle) {
-                moveAmount.x = hit.normal.x * (Mathf.Abs(moveAmount.y) - hit.distance)/Mathf.Tan(slopeAngle*Mathf.Deg2Rad);
+                moveAmount.x = Mathf.Sign(hit.normal.x) * (Mathf.Abs(moveAmount.y) - hit.distance)/Mathf.Tan(slopeAngle*Mathf.Deg2Rad);
                 collisions.slopeAngle = slopeAngle;
                 collisions.slidingDownMaxSlope = true;
                 collisions.slopeNormal = hit.normal;
